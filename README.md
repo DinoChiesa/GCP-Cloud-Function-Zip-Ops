@@ -6,7 +6,7 @@ of the contents of the zipfile.
 
 ## How it works
 
-This function has a single handler that accepts as input a base64-encoded ZIP file, then 
+This function has a single handler that accepts as input a base64-encoded ZIP file, then
 
 - decodes it
 
@@ -17,9 +17,31 @@ This function has a single handler that accepts as input a base64-encoded ZIP fi
   base64-encoded, unless the filetype is a known text file (like .txt, .js, and
   so on), in which case the content is plain text.
 
+For an input zipfile with two entries, one called package.json and one called index.js, the output will look like:
+
+```
+{
+  "result": [
+    {
+      "name": "package.json",
+      "stamp": "2022-11-02T00:48:20.000Z",
+      "contents": "{\n  \"name\": \"zip-ops\",\n  \"version\": \"1.0.0\",\n  ... \n}\n"
+    },
+    {
+      "name": "index.js",
+      "stamp": "2022-11-02T00:47:56.000Z",
+      "contents": "// index.js\n// ------------------------------------------------------------------\n//\n/* jshint esversion:9, node:true, strict:implied */\n/* global process, console, Buffer */\n\nconst functions = require('@google-cloud/functions-framework');\nconst AdmZip   = require('adm-zip');\n\nconst base64Decode = (encoded) => Buffer.from(encoded.trim(), 'base64');\n\n... \n"
+    }
+  ]
+}
+```
+
+If you want to connect with this function from Apigee/App integration, you must
+send the appropriate HTTP request in and then handle a response of that form.
+
 ## To deploy:
 
-Deploy the function into Google Cloud functions, this way: 
+Deploy the function into Google Cloud functions, this way:
 
 ```
   FUNCNAME=zip-ops-http-function
@@ -34,12 +56,12 @@ Deploy the function into Google Cloud functions, this way:
     --allow-unauthenticated
 ```
 
-The output of that command will show a URL, the endpoint at which the cloud function is reachable. 
-You may wish to convert it to authenticated access. (remove `--allow-unauthenticated`). 
+The output of that command will show a URL, the endpoint at which the cloud function is reachable.
+You may wish to convert it to authenticated access. (remove `--allow-unauthenticated`).
 
 ## To inquire the endpoint uri after deployment
 
-If you have previously deployed and don't remember th eURI, you can check it. 
+If you have previously deployed and don't remember th eURI, you can check it.
 ```
   gcloud functions describe  $FUNCNAME \
     --gen2 \
@@ -75,22 +97,35 @@ To produce the encoded zip file used in the above:
   cat anyzipfile.zip | openssl base64 -A > zip1.b64encoded
 ```
 
-An alternative content-type is JSON: 
+An alternative content-type is JSON:
 ```
   curl -i 0:8080  -H content-type:application/json -d @zip1.json
 ```
 
 In this case, the json payload has one member, "contents", which contains the
-b64encoded zip.  IT might look like this:
+b64encoded zip. It might look like this:
 
 ```
 {"contents" : "UEsDBBQAA..."}
 ```
 
+
+## Limits and Security Concerns
+
+This example has no checks on the size of the zipfile or the number of
+entries. It reads in the entire ZIP file into memory and de-compresses it. This
+may take some time for large zip files and will consume resources.
+
+A better, more resilient design would insert checks and change behavior for
+large zip files, or large zip entries.
+
+
 ## Other Information
 
 Relevant docs fo Google Cloud functions
   https://cloud.google.com/functions/docs/running/function-frameworks
+
+
 
 ## Disclaimer
 
@@ -99,7 +134,7 @@ official Google product.
 
 ## Support
 
-This callout is open-source software, and is not a supported part of the Google App Integration product. 
+This callout is open-source software, and is not a supported part of the Google App Integration product.
 
 If you need assistance, you can try inquiring on [Google Cloud Community
 forum dedicated to Apigee](https://www.googlecloudcommunity.com/gc/Apigee/bd-p/cloud-apigee).
@@ -109,7 +144,7 @@ responses to inquiries regarding this callout.
 ## License
 
 This material is [Copyright 2022 Google LLC](./NOTICE).
-and is licensed under the [Apache 2.0 License](LICENSE). 
+and is licensed under the [Apache 2.0 License](LICENSE).
 
 
 ## Author
