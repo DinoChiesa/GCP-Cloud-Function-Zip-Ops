@@ -64,7 +64,7 @@ To run the service locally, you can use this command:
   npm run local
 ```
 
-Then, invoke the local service at 0:8080:
+Then, invoke the local service with a text/plain content-type at 0:8080:
 ```
   curl -i 0:8080  -H content-type:text/plain -d @zip1.b64encoded
 ```
@@ -72,15 +72,20 @@ Then, invoke the local service at 0:8080:
 To produce the encoded zip file used in the above:
 
 ```
-  cat myzipfile.zip | openssl base64 -A > zip1.b64encoded
+  cat anyzipfile.zip | openssl base64 -A > zip1.b64encoded
 ```
 
-An alternative is 
+An alternative content-type is JSON: 
 ```
   curl -i 0:8080  -H content-type:application/json -d @zip1.json
 ```
-In this case,
-the json payload has one member, "contents", which contains the b64encoded zip. 
+
+In this case, the json payload has one member, "contents", which contains the
+b64encoded zip.  IT might look like this:
+
+```
+{"contents" : "UEsDBBQAA..."}
+```
 
 ## Other Information
 
