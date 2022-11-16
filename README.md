@@ -1,12 +1,23 @@
 # Zip Operations function
 
-This example uses nodejs and the @google-cloud/functions-framework to show how
-to build a function that unzips a zipfile, and sends back a JSON representation
-of the contents of the zipfile.
+This example uses a JavaScript function that relies on nodejs  and the
+[@google-cloud/functions-framework](https://www.npmjs.com/package/@google-cloud/functions-framework)
+to produce a function that unzips a zipfile, and sends back a JSON
+representation of the contents of the zipfile.
 
 ## How it works
 
-This function has a single handler that accepts as input a base64-encoded ZIP file, then
+[GCP Cloud Functions](https://cloud.google.com/functions) is an example of a
+"Functions as a Service" or FaaS offering. The idea is that instead of writing a
+full application, with code dealing with concerns for startup, shutdown,
+initialization, remoting, and so on...., developers can just write a simple
+stateless function. This simplifies development, which can help small or large
+companies build more quickly.
+
+
+This repo holds a particular function example, which accepts ZIP files and
+processes them. This function has a single handler that accepts as input a
+base64-encoded ZIP file, then
 
 - decodes it
 
@@ -37,7 +48,9 @@ For an input zipfile with two entries, one called package.json and one called in
 ```
 
 If you want to connect with this function from Apigee/App integration, you must
-send the appropriate HTTP request in and then handle a response of that form.
+configure the Integration flow to send the appropriate HTTP request in to this
+function, and then you must configure the Integration flow to handle a response
+from the function that follows the form shown above.
 
 ## To deploy:
 
@@ -57,13 +70,14 @@ Deploy the function into Google Cloud functions, this way:
 ```
 
 The output of that command will show a URL, the endpoint at which the cloud function is reachable.
-You may wish to convert it to authenticated access. (remove `--allow-unauthenticated`).
+
+NOTE: For production uses, you will want to convert this function to authenticated access. (remove `--allow-unauthenticated`).
 
 ## To inquire the endpoint uri after deployment
 
-If you have previously deployed and don't remember th eURI, you can check it.
+If you have previously deployed and don't remember the URI, you can inquire it.
 ```
-  gcloud functions describe  $FUNCNAME \
+  gcloud functions describe $FUNCNAME \
     --gen2 \
     --region us-west1 \
     --format="value(serviceConfig.uri)"
@@ -74,7 +88,7 @@ If you have previously deployed and don't remember th eURI, you can check it.
 To avoid costs, clean up when you're finished testing.
 
 ```
-  gcloud functions delete  $FUNCNAME \
+  gcloud functions delete $FUNCNAME \
     --gen2 \
     --region us-west1
 ```
